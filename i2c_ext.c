@@ -1,8 +1,4 @@
-#include "i2c.h"
-#include "gpio.h"
-#include "stdint.h"
-#include "stdlib.h"
-#include "string.h"
+#include "i2c_ext.h"
 
 #define OUTTIME 10
 I2C_HandleTypeDef * I2C_USE;
@@ -47,12 +43,13 @@ uint8_t I2C_Write_Buffer(uint8_t slaveAddr, uint8_t writeAddr, uint8_t *pBuffer,
   return result;
 }
 
-inline void Delay_Us(uint32_t nus){
+void Delay_Us(uint32_t nus){
     // 主频按72M 计算，其他主频略有误差
     uint32_t cnt=nus*72;
 
     while(cnt--);
 }
+
 void I2C_Reset(){
     
 
@@ -82,6 +79,6 @@ void I2C_Reset(){
     HAL_GPIO_WritePin(SDA_GPIO_PORT,SDA_GPIO_PIN,GPIO_PIN_SET);
     HAL_GPIO_WritePin(SCL_GPIO_PORT,SCL_GPIO_PIN,GPIO_PIN_SET);
 
-    I2C_USE->State == HAL_I2C_STATE_RESET;
+    I2C_USE->State = HAL_I2C_STATE_RESET;
     (*(void (*)(void))  I2C_Init_Func)();
 }

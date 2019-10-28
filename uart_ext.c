@@ -1,5 +1,8 @@
 #include "usart.h"
 #include "uart_ext.h"
+#include "command.h"
+#include "cmd_fun.h"
+
 
 
 
@@ -7,27 +10,42 @@ static UART_TXRX_Mode Tx_Mode=BLOCK;
 static UART_TXRX_Mode Rx_Mode=IT;
 static UART_HandleTypeDef * debug_uart=0;
 
+uint8_t uart_buffer[100+1];
 
 uint8_t buffer_rx_temp;
-
-uint8_t buffer_rx[30];
+#define BUFFER_RX_SIZE  30
+uint8_t buffer_rx[BUFFER_RX_SIZE];
 int buffer_rx_count=0;
 uint8_t buffer_rx_OK;
 
+void UART_Start_Receive(){
+    if(Rx_Mode==IT){
+        HAL_UART_Receive_IT(debug_uart,&buffer_rx_temp,1);
+    }else if(Rx_Mode==DMA){
+      __HAL_UART_ENABLE_IT(debug_uart,UART_IT_IDLE);
+      HAL_UART_Receive_DMA(debug_uart, (uint8_t *)buffer_rx, BUFFER_RX_SIZE-1);
+    }
+}
+
+
 
 void debug_uart_init(UART_HandleTypeDef *uart,UART_TXRX_Mode tx_mode,UART_TXRX_Mode rx_mode){
+  // 本文件使用方式
+  // 调用本函数
+  // 如果接收使用DMA 方式
+  // 则需要在stm32_XX_it.c中，在对应的串口中断服务函数中，调用HAL_UART_IDLECallback
+  // 因为HAL库到现在在串口中断处理函数中都没增加对空闲中断的处理，只能出此下策。
+  
     Tx_Mode=tx_mode;
     Rx_Mode=rx_mode;
     debug_uart=uart;
 
-    if(Rx_Mode==IT){
-        HAL_UART_Receive_IT(debug_uart,&buffer_rx_temp,1);
-    }else if(Rx_Mode==DMA){
-        // 开空闲中断
-    }
+    command_init();
+    UART_Start_Receive();
 }
 
-inline void UART_Send(uint8_t * data,uint16_t size){
+
+static void UART_Send(uint8_t * data,uint16_t size){
     switch (Tx_Mode)
     {
     case BLOCK:
@@ -84,3 +102,25 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
     }
   }
 }
+
+void HAL_UART_IDLECallback(UART_HandleTypeDef *huart){
+   uint8_t temp=0;
+  
+  __HAL_UART_CLEAR_IDLEFLAG(huart);
+  if(huart==debug_uart){
+    HAL_UART_DMAStop(debug_uart);
+    temp= huart->Instance->SR;
+    temp= huart->Instance->DR;//读出串口的数据，防止在关闭DMA期间有数据进来，造成ORE错误
+    temp++;  // 无用，单纯为了消掉warning
+    
+    buffer_rx_OK=1;
+  }
+  
+}
+
+void UART_Command_Analize_And_Call(){
+  analize(buffer_rx);
+  UART_Start_Receive();
+  buffer_rx_OK=0;
+}
+

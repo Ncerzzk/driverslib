@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
+#include "main.h"
 
 typedef enum{
     BLOCK=0x00,
@@ -12,11 +14,11 @@ typedef enum{
 }UART_TXRX_Mode;
 
 
-uint8_t uart_buffer[100 + 1];
-
+extern uint8_t buffer_rx_OK;
 
 void send_wave(float arg1,float arg2,float arg3,float arg4);
 void uprintf(char *fmt, ...);
 void debug_uart_init(UART_HandleTypeDef *uart,UART_TXRX_Mode tx_mode,UART_TXRX_Mode rx_mode);
+void UART_Command_Analize_And_Call();
 
 #endif

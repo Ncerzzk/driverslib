@@ -118,6 +118,12 @@ void esc_test(int arg_num,char ** s,float * args){
   if(arg_num==0x0001){
     Set_ESC(L_ESC,args[0]);
     Set_ESC(R_ESC,args[0]);
+  }else{
+    if(s[0][0]=='l'){
+      Set_ESC(L_ESC,args[0]);
+    }else{
+      Set_ESC(R_ESC,args[0]);
+    }
   }
 }
 

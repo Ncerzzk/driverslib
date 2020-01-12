@@ -24,19 +24,19 @@ static int16_t get_prams(char *s,char *** string_prams,float ** float_prams){
   char **float_buffer;
   char **string_buffer;
   
-  int num_float_i=0,num_string_i=0; //µÚ¼¸¸öÊı×Ö
-  int num_i_i=0;//µÚ¼¸¸öÊı×Ö/×Ö·û´®µÄµÚ¼¸Î»
+  int num_float_i=0,num_string_i=0; //ç¬¬å‡ ä¸ªæ•°å­—
+  int num_i_i=0;//ç¬¬å‡ ä¸ªæ•°å­—/å­—ç¬¦ä¸²çš„ç¬¬å‡ ä½
   
   in_flag=IN_SPACE;
   
   /*
-  Êı×Ö²ÎÊıµÄ´æ·ÅÎ»ÖÃ£¬ÕâĞ©¿Õ¼äĞèÒªÔÚº¯ÊıÍâÊÍ·Å
+  æ•°å­—å‚æ•°çš„å­˜æ”¾ä½ç½®ï¼Œè¿™äº›ç©ºé—´éœ€è¦åœ¨å‡½æ•°å¤–é‡Šæ”¾
   */
   *float_prams=(float *)malloc(sizeof(int)*FLOAT_PRAM_NUM);
   
   /*
-  Êı×Ö²ÎÊıµÄÎÄ±¾ÁÙÊ±´æ·Å£¬ÓÃÓÚµ÷ÓÃatofº¯Êı
-  ÔÚ±¾³ÌĞò½áÊøÇ°»á½«ÕâĞ©¿Õ¼äÊÍ·Åµô
+  æ•°å­—å‚æ•°çš„æ–‡æœ¬ä¸´æ—¶å­˜æ”¾ï¼Œç”¨äºè°ƒç”¨atofå‡½æ•°
+  åœ¨æœ¬ç¨‹åºç»“æŸå‰ä¼šå°†è¿™äº›ç©ºé—´é‡Šæ”¾æ‰
   */
   float_buffer=(char **)malloc(sizeof(char *)*FLOAT_PRAM_NUM);
   for(i=0;i<FLOAT_PRAM_NUM;++i){
@@ -44,7 +44,7 @@ static int16_t get_prams(char *s,char *** string_prams,float ** float_prams){
   }
   
   /*
-  ×Ö·û´®²ÎÊıµÄ´æ·ÅÎ»ÖÃ£¬ÕâĞ©¿Õ¼äĞèÒªÔÚº¯ÊıÍâÊÍ·Å
+  å­—ç¬¦ä¸²å‚æ•°çš„å­˜æ”¾ä½ç½®ï¼Œè¿™äº›ç©ºé—´éœ€è¦åœ¨å‡½æ•°å¤–é‡Šæ”¾
   */
   string_buffer=(char **)malloc(sizeof(char*) * STRING_PRAM_NUM);
   for(i=0;i<STRING_PRAM_NUM;++i){
@@ -54,22 +54,22 @@ static int16_t get_prams(char *s,char *** string_prams,float ** float_prams){
   *string_prams=string_buffer;
   
   i=0;
-  //Ê¹ÓÃDMA£¬Ôö¼Ós[1]!='\r'µÄÌõ¼ş£¬ÒòÎªÃ»ÓĞÔÙ°Ñ\r»»³É\0ÁË
+  //ä½¿ç”¨DMAï¼Œå¢åŠ s[1]!='\r'çš„æ¡ä»¶ï¼Œå› ä¸ºæ²¡æœ‰å†æŠŠ\ræ¢æˆ\0äº†
   while(s[i]!='\0'&&s[i]!='\r'&&num_float_i<=FLOAT_PRAM_NUM&&num_string_i<=STRING_PRAM_NUM&&num_i_i<20){
-    if(s[i]!=' '){//µ½´ï·Ç¿Õ¸ñ
-      if(in_flag==IN_SPACE){  //ÔÚÊı×ÖÖĞ±êÖ¾Î»ºÍ×Ö·û´®±êÖ¾Î»Î´ÉèÖÃ,¼´´Ó¿Õ¸ñÖ®ºó³öÏÖµÄµÚÒ»¸öÊı×Ö/×Ö·û
+    if(s[i]!=' '){//åˆ°è¾¾éç©ºæ ¼
+      if(in_flag==IN_SPACE){  //åœ¨æ•°å­—ä¸­æ ‡å¿—ä½å’Œå­—ç¬¦ä¸²æ ‡å¿—ä½æœªè®¾ç½®,å³ä»ç©ºæ ¼ä¹‹åå‡ºç°çš„ç¬¬ä¸€ä¸ªæ•°å­—/å­—ç¬¦
         if(isalpha(s[i])){
           in_flag=IN_LETTER;
           num_string_i++;
-          string_buffer[num_string_i-1][0]=s[i];  //¸´ÖÆµÚÒ»¸ö×Ö·û
+          string_buffer[num_string_i-1][0]=s[i];  //å¤åˆ¶ç¬¬ä¸€ä¸ªå­—ç¬¦
         }else{
           in_flag=IN_DIGITAL;
           num_float_i++;
-          float_buffer[num_float_i-1][0]=s[i];   //¸´ÖÆµÚÒ»¸öÊı×Ö×Ö·û
+          float_buffer[num_float_i-1][0]=s[i];   //å¤åˆ¶ç¬¬ä¸€ä¸ªæ•°å­—å­—ç¬¦
         }
         num_i_i=0;
       }else{
-        //¼ÌĞø¸´ÖÆ
+        //ç»§ç»­å¤åˆ¶
         if(in_flag==IN_LETTER){
           string_buffer[num_string_i-1][num_i_i]=s[i];
         }else{
@@ -77,7 +77,7 @@ static int16_t get_prams(char *s,char *** string_prams,float ** float_prams){
         }
       }
       num_i_i++;
-    }else{ //ÊÇ¿Õ¸ñ
+    }else{ //æ˜¯ç©ºæ ¼
       if(in_flag==IN_LETTER){
         string_buffer[num_string_i-1][num_i_i]='\0';
       }else if(in_flag==IN_DIGITAL){
@@ -87,14 +87,14 @@ static int16_t get_prams(char *s,char *** string_prams,float ** float_prams){
     }
     i++;
   }
-  if(in_flag==IN_LETTER){  //Èç¹ûÊÇ×Ö·û´®²ÎÊı·ÅÔÚ×îºó£¬ÕâÀï±ØĞëÔÙ¼ì²éÒ»ÏÂ£¬¼ÓÉÏ\0
+  if(in_flag==IN_LETTER){  //å¦‚æœæ˜¯å­—ç¬¦ä¸²å‚æ•°æ”¾åœ¨æœ€åï¼Œè¿™é‡Œå¿…é¡»å†æ£€æŸ¥ä¸€ä¸‹ï¼ŒåŠ ä¸Š\0
     string_buffer[num_string_i-1][num_i_i]='\0';
   }else if(in_flag==IN_DIGITAL){
     float_buffer[num_float_i-1][num_i_i]='\0';
   }
   
   /*
-  ÊÍ·ÅÊı×Ö²ÎÊıµÄ×Ö·ûÁÙÊ±´æ·Å¿Õ¼ä
+  é‡Šæ”¾æ•°å­—å‚æ•°çš„å­—ç¬¦ä¸´æ—¶å­˜æ”¾ç©ºé—´
   */
   for(i=0;i<FLOAT_PRAM_NUM;++i){
     (*float_prams)[i]=atof(float_buffer[i]);
@@ -108,7 +108,7 @@ static int16_t get_prams(char *s,char *** string_prams,float ** float_prams){
 
 /*
 void add_cmd(const char * s,cmdFunc f)
-ĞÂÔöÃüÁî£¬sÎªÃüÁî×Ö·û´®£¬fÎª°ó¶¨µÄº¯Êı¡£
+æ–°å¢å‘½ä»¤ï¼Œsä¸ºå‘½ä»¤å­—ç¬¦ä¸²ï¼Œfä¸ºç»‘å®šçš„å‡½æ•°ã€‚
 */
 
 
@@ -122,8 +122,8 @@ void add_cmd(char * s,cmdFunc f){
 
 /*
 compare_cmd(const char* cmd,char *s)
-±È½ÏcmdÓësÁ½¸ö×Ö·û´®£¬ÆäÖĞcmdÎªÃüÁî£¬sÎª´ı±È½ÏµÄ×Ö·û´®
-Èô×Ö·û´®Îª¸ÃÃüÁî£¬Ôò·µ»ØÃüÁîµÄ³¤¶È£¬·ñÔò·µ»Ø0
+æ¯”è¾ƒcmdä¸sä¸¤ä¸ªå­—ç¬¦ä¸²ï¼Œå…¶ä¸­cmdä¸ºå‘½ä»¤ï¼Œsä¸ºå¾…æ¯”è¾ƒçš„å­—ç¬¦ä¸²
+è‹¥å­—ç¬¦ä¸²ä¸ºè¯¥å‘½ä»¤ï¼Œåˆ™è¿”å›å‘½ä»¤çš„é•¿åº¦ï¼Œå¦åˆ™è¿”å›0
 */
 char compare_cmd(const char * cmd,char * s){
   int i=0;
@@ -132,8 +132,8 @@ char compare_cmd(const char * cmd,char * s){
       return 0;
     ++i;
   }
-  if(s[i]!=' '&&s[i]!='\0'&&s[i]!='\r'){          //Ê¹ÓÃDMA±ØĞëÅĞ¶Ï×îºóÒ»¸öiÌ×¼ş
-    return 0;   //±ÈÈçÃüÁîhello ÓëÃüÁî helloworldµÄÇé¿ö£¬Ã»ÓĞÕâ¸öÅĞ¶Ï£¬»á°ÉºóÕßÎóÈÏÎªÇ°Õß
+  if(s[i]!=' '&&s[i]!='\0'&&s[i]!='\r'){          //ä½¿ç”¨DMAå¿…é¡»åˆ¤æ–­æœ€åä¸€ä¸ªiå¥—ä»¶
+    return 0;   //æ¯”å¦‚å‘½ä»¤hello ä¸å‘½ä»¤ helloworldçš„æƒ…å†µï¼Œæ²¡æœ‰è¿™ä¸ªåˆ¤æ–­ï¼Œä¼šå§åè€…è¯¯è®¤ä¸ºå‰è€…
   }
   return i;
 }

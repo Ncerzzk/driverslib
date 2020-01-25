@@ -92,3 +92,36 @@ static uint16_t Command(uint16_t address,uint8_t read){
   command|=Count_PARC(command);
   return command;
 }
+
+// 本函数需确保不会被其他操作AS5047的程序打断
+// 因为写入一个寄存器需要好几个SPI操作时序，一旦中间有其他操作（如读位置寄存器），则写操作失败
+
+// 方向有两种，
+// direction==0 顺时针为正 （从上往下看磁编码器）                
+// direction==1 逆时针为正
+
+void AS5047_Set_Direction(uint8_t direction){
+  uint16_t command=0;
+  static uint16_t result=0;
+
+  command=Command(0x01,1);
+  Set_CSN(0);
+  HAL_SPI_Transmit(&SPI_USE,(uint8_t *)&command,1,100);
+  Set_CSN(1);
+
+  command=Command(0x18,0);
+  Set_CSN(0);
+  HAL_SPI_TransmitReceive(&SPI_USE,(uint8_t *)&command,(uint8_t *)&result,1,100);   // 接收错误寄存器
+  Set_CSN(1);
+
+  direction<<=2;
+  command=Command(direction,0);
+  Set_CSN(0);
+  HAL_SPI_TransmitReceive(&SPI_USE,(uint8_t *)&command,(uint8_t *)&result,1,100);   // 接收寄存器原值
+  Set_CSN(1);
+
+  command=Command(0x00,1);
+  Set_CSN(0);
+  HAL_SPI_TransmitReceive(&SPI_USE,(uint8_t *)&command,(uint8_t *)&result,1,100);   /// 发送NOP，接收寄存器新值
+  Set_CSN(1);
+}

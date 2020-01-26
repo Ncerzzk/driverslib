@@ -12,8 +12,8 @@ static uint16_t Command(uint16_t address,uint8_t read);
 uint16_t AS_5047_Err;
 
 uint16_t Read_Reg(uint16_t reg){
-  uint16_t command=0;
-  uint16_t result=0;
+uint16_t command=0;
+uint16_t result=0;
 
   static uint8_t OK=0;
 

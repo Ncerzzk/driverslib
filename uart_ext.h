@@ -21,4 +21,5 @@ void uprintf(char *fmt, ...);
 void debug_uart_init(UART_HandleTypeDef *uart,UART_TXRX_Mode tx_mode,UART_TXRX_Mode rx_mode);
 void UART_Command_Analize_And_Call();
 void uprintf_polling(char *fmt,...);
+
 #endif

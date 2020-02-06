@@ -4,7 +4,7 @@
 #include "cmd_fun.h"
 
 
-
+#define SPECIAL_LARGE_RECEIVE
 
 static UART_TXRX_Mode Tx_Mode=BLOCK;
 static UART_TXRX_Mode Rx_Mode=IT;
@@ -13,7 +13,11 @@ static UART_HandleTypeDef * debug_uart=0;
 uint8_t uart_buffer[100+1];
 
 uint8_t buffer_rx_temp;
-#define BUFFER_RX_SIZE  30
+#ifdef SPECIAL_LARGE_RECEIVE
+  #define BUFFER_RX_SIZE  1001
+#else
+  #define BUFFER_RX_SIZE 30
+#endif 
 uint8_t buffer_rx[BUFFER_RX_SIZE];
 int buffer_rx_count=0;
 uint8_t buffer_rx_OK;
@@ -99,7 +103,7 @@ void uprintf(char *fmt, ...)
   UART_Send(uart_buffer,size);
 }
 
-
+#ifndef SPECIAL_LARGE_RECEIVE
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
   if(huart==debug_uart){
     buffer_rx[buffer_rx_count]=buffer_rx_temp;
@@ -114,6 +118,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
     }
   }
 }
+#endif
 
 void HAL_UART_IDLECallback(UART_HandleTypeDef *huart){
    uint8_t temp=0;
@@ -124,8 +129,12 @@ void HAL_UART_IDLECallback(UART_HandleTypeDef *huart){
     temp= huart->Instance->SR;
     temp= huart->Instance->DR;//读出串口的数据，防止在关闭DMA期间有数据进来，造成ORE错误
     temp++;  // 无用，单纯为了消掉warning
-    
-    buffer_rx_OK=1;
+    #ifdef SPECIAL_LARGE_RECEIVE
+      UART_Large_Reveice();
+      UART_Start_Receive();
+    #else
+      buffer_rx_OK=1;
+    #endif
   }
   
 }
@@ -136,3 +145,7 @@ void UART_Command_Analize_And_Call(){
   buffer_rx_OK=0;
 }
 
+
+__weak void UART_Large_Reveice(){
+
+}

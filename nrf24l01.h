@@ -102,7 +102,9 @@ uint8_t NRF_Set_Tx_Addr(uint8_t * addr,size_t size_check);
 void NRF_Install_TX_Data(uint8_t *data,int len);
 void NRF_Read_Bytes(uint8_t addr,uint8_t *rx_data,uint8_t len);
 void NRF_TX_IRQ_Handler();
+void NRF_RX_IRQ_Handler();
 void NRF_Send_Message_IT();
 __weak void NRF_Receive_Callback(uint8_t * data,int len);
 __weak void NRF_Send_Callback();
+void NRF_Receive_IT();
 #endif

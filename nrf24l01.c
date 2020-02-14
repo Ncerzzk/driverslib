@@ -16,6 +16,8 @@ SPI_HandleTypeDef * SPI_USE;
 
 #define CRC_ENABLE   1
 
+
+
 uint8_t  RX_ADDRESS[3][5]= {{0x20,0x30,0x40,0x40,0x40},
                             {0x1,0x2,0x3,0x4,0x5},
                             }; 
@@ -44,59 +46,53 @@ static void NRF_Set_GPIO(NRF_GPIO io,NRF_GPIO_Level level){
   } 
 }
 
-static uint8_t NRF_Read_Reg(uint8_t reg){
+uint8_t NRF_Read_Reg(uint8_t reg){
   uint8_t rxData=0;
+  uint8_t nop=0xFF;
   NRF_Set_GPIO(CSN,LOW);
   NRF_SPI_Write_Read(&reg,&STATUS_VALUE,1);
-  NRF_SPI_Read(&rxData,1);
+  NRF_SPI_Write_Read(&nop,&rxData,1);
+
+ // NRF_SPI_Read(&rxData,1);
   NRF_Set_GPIO(CSN,HIGH);
   return rxData;  
 }
 
-static uint8_t NRF_Write_Reg(uint8_t reg,uint8_t data){
-  uint8_t spi_send_data=W_REGISTER|reg;
+uint8_t NRF_Write_Reg(uint8_t reg,uint8_t data){
+  uint8_t spi_send_data=W_REGISTER|reg;     
+  // 对命令来说，除了读命令，其他的命令的0x20处都是1，所以无所谓
+  // 可以用此函数来发送清除 或者别的命令
   
   NRF_Set_GPIO(CSN,LOW);
   NRF_SPI_Write_Read(&spi_send_data,&STATUS_VALUE,1);
   NRF_SPI_Write(&data,1);
   NRF_Set_GPIO(CSN,HIGH);
 
-  if(reg==STATUS || reg>0x3F)
-    return 1;
-  if(NRF_Read_Reg(reg)!=data){
-    return 0;
-  }
   return 1;
 }
 
 void NRF_Read_Bytes(uint8_t addr,uint8_t *rx_data,uint8_t len){
+  uint8_t * nopdata=(uint8_t *) malloc(sizeof(uint8_t)*len);
+  memset(nopdata,0xFF,len);
   NRF_Set_GPIO(CSN,LOW);
   NRF_SPI_Write_Read(&addr,&STATUS_VALUE,1);
-  NRF_SPI_Read(rx_data,len);
+  NRF_SPI_Write_Read(nopdata,rx_data,len);
+  //NRF_SPI_Read(rx_data,len);
   NRF_Set_GPIO(CSN,HIGH);
+  free(nopdata);
+  
 }
 
-static uint8_t NRF_Write_Bytes(uint8_t addr,uint8_t *data,uint8_t len){
+uint8_t NRF_Write_Bytes(uint8_t addr,uint8_t *data,uint8_t len){
   uint8_t * temp=(uint8_t *)malloc(sizeof(uint8_t)*len);
   uint8_t spi_send_data=W_REGISTER|addr;
   
-REDO:
   NRF_Set_GPIO(CSN,LOW);
   NRF_SPI_Write_Read(&spi_send_data,&STATUS_VALUE,1);
   NRF_SPI_Write_Read(data,temp,len);
   NRF_Set_GPIO(CSN,HIGH);
   
-  NRF_Read_Bytes(addr,temp,len);
-  
-  if(addr<=0x3F){   //寄存器模式才校验
-    for(int i=0;i<len;++i){
-      if(temp[i]!=data[i]){
-        //goto REDO;
-        free(temp);
-        return 0;
-      }
-    }
-  }
+  NRF_Read_Bytes(addr,temp,len);  
   free(temp);
   return 1;
 }
@@ -122,7 +118,7 @@ REDO:
     return 0;
   }
   result&=NRF_Write_Reg(NRF_CONFIG,CONFIG_VALUE|NRF_TX);   // Power Up
-  
+
   HAL_Delay(10);
   result&=NRF_Write_Reg(EN_AA,0X01); //自动ACK
   result&=NRF_Write_Reg(SETUP_RETR,0x0F); //自动重发
@@ -221,21 +217,31 @@ void NRF_Send_Message(){
 
 }
 
+uint8_t FIFO_State;
 void NRF_Receive(){
+
+
+  //
   NRF_Set_GPIO(CE,HIGH);
   NRF_Set_Mode(NRF_RX,CRC_ENABLE); 
   
   if(STATUS_VALUE<0x40){
     return ;
   }
+  NRF_Set_GPIO(CE,LOW);
   // 这里只是接收定长数据，如果要接收动态长度，需要一堆操作
   // 以后有时间再说吧
+
+  FIFO_State=NRF_Read_Reg(0x17);
+  if(FIFO_State & 1<<1){
+    NRF_Write_Reg(FLUSH_RX,0);
+    NRF_Write_Reg(STATUS,0xFF);
+    return ;
+  }
   NRF_Read_Bytes(R_RX_PAYLOAD,NRF_RX_Data,RX_PLOAD_WIDTH);
-  NRF_Write_Reg(STATUS,0xFF);  //清空STATUS
- 
-  NRF_Set_GPIO(CE,LOW);
-  NRF_Write_Reg(FLUSH_RX,0); 
+  
   NRF_Receive_Callback(NRF_RX_Data,RX_PLOAD_WIDTH);
+  NRF_Write_Reg(STATUS,0xFF);  //清空STATUS
 }
 
 void NRF_Install_TX_Data(uint8_t *data,int len){
@@ -260,6 +266,16 @@ void NRF_Send_Message_IT(){
   NRF_Write_Bytes(W_TX_PAYLOAD,NRF_TX_Data,TX_PLOAD_WIDTH);
   NRF_Set_GPIO(CE,HIGH);  
 }
+
+void NRF_Receive_IT(){
+ NRF_Write_Reg(STATUS,0xFF);
+ STATUS_VALUE=NRF_Read_Reg(STATUS);
+ NRF_Write_Reg(FLUSH_RX,0);
+ 
+ NRF_Set_Mode(NRF_RX,CRC_ENABLE); 
+ NRF_Set_GPIO(CE,HIGH); 
+
+}
 void NRF_TX_IRQ_Handler(){
   STATUS_VALUE=NRF_Read_Reg(STATUS);
   if(STATUS_VALUE&0x20){
@@ -271,9 +287,11 @@ void NRF_TX_IRQ_Handler(){
 
 void NRF_RX_IRQ_Handler(){
   NRF_Read_Bytes(R_RX_PAYLOAD,NRF_RX_Data,RX_PLOAD_WIDTH);
+  NRF_Write_Reg(FLUSH_RX,0); 
   NRF_Write_Reg(STATUS,0xFF);  //清空STATUS
  
-  NRF_Set_GPIO(CE,LOW);
-  NRF_Write_Reg(FLUSH_RX,0); 
+  //NRF_Set_GPIO(CE,LOW);
+
   NRF_Receive_Callback(NRF_RX_Data,RX_PLOAD_WIDTH);  
 }
+

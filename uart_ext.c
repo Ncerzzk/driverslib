@@ -4,7 +4,7 @@
 #include "cmd_fun.h"
 
 
-#define SPECIAL_LARGE_RECEIVE
+//#define SPECIAL_LARGE_RECEIVE
 
 static UART_TXRX_Mode Tx_Mode=BLOCK;
 static UART_TXRX_Mode Rx_Mode=IT;

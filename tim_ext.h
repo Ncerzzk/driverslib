@@ -4,5 +4,6 @@
 #include "tim.h"
 
 void Timer_1ms_IRQ_Handler();
-void Timer_Init(TIM_HandleTypeDef *tim);
+void Timer_Init(TIM_HandleTypeDef *tim,uint32_t max_freq);
+
 #endif

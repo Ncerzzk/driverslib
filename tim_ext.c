@@ -21,17 +21,10 @@ uint32_t Time_Counter_Stop(Time_Counter * time_counter){
     return result;
 }
 
-void Timer_Init(TIM_HandleTypeDef *tim)
+void Timer_Init(TIM_HandleTypeDef *tim,uint32_t max_freq)
 {
     Timer_Tim = tim;
-    if (tim->Instance != TIM1 && tim->Instance != TIM8)
-    {
-        TIM_MAX_FREQ = 84000000;
-    }
-    else
-    {
-        TIM_MAX_FREQ = 168000000;
-    }
+    TIM_MAX_FREQ=max_freq;
 
     tim->Instance->PSC=83;
     tim->Instance->ARR=TIM_MAX_FREQ/(tim->Instance->PSC+1)/1000-1;

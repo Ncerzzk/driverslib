@@ -208,52 +208,8 @@ void Voice_Init(TIM_HandleTypeDef * tim,uint16_t fs){
 */
 #include "string.h"
 #include "uart_ext.h"
-void request_for_bytes(){
-    uprintf("r");
-}
 
-void Voice_Fshz_Handler()
-{
-    if(!Voice_Init_OK){
-        return ;
-    }
-    if(Voice_Data_Head_Index%1000==0){
-        request_for_bytes();
-    }
-    Voice_Data_Head_Index++;
-    if (Voice_Data_Head_Index >= sizeof(Voice_Data))
-    {
-        Voice_Data_Head_Index=0;
-    }
-
-    Voice_Info.voice_duty = (float)Voice_Data[Voice_Data_Head_Index] / 255.0f;
-
-    if(Voice_Info.voice_duty>0.5f){
-       Set_Vector(U4, Voice_Info.voice_duty-0.5f); 
-    }else{
-       Set_Vector(U6, Voice_Info.voice_duty-0.5f);  
-    }
-}
-
-extern uint8_t buffer_rx[];
-void UART_Large_Reveice(){
-    memcpy(Voice_Data+Voice_Data_End_Index,buffer_rx,1000);
-    Voice_Data_End_Index+=1000;
-    if(Voice_Data_End_Index>=sizeof(Voice_Data)){
-        Voice_Data_End_Index%=sizeof(Voice_Data);
-    }
-}
-
-
-
-void Voice_Init(){
-    // 先要他个5000个字节先
-    for(int i=0;i<5;++i){
-        request_for_bytes();
-        HAL_Delay(2000);
-    }
-    Voice_Init_OK=1;
-}
+/*
 #include "usart.h"
 #include "uart_ext.h"
 extern uint8_t buffer_rx_temp;
@@ -266,4 +222,4 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
        Set_Vector(U6, Voice_Info.voice_duty-0.5f);  
     }
     HAL_UART_Receive_IT(huart,&buffer_rx_temp,1);
-}
+}*/

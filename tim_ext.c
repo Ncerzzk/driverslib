@@ -2,10 +2,6 @@
 
 
 
-typedef struct{
-    uint32_t start_cnt;
-    uint32_t start_ms;
-}Time_Counter;
 
 static TIM_HandleTypeDef *Timer_Tim;
 uint32_t TIM_MAX_FREQ;

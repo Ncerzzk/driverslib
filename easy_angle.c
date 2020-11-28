@@ -10,12 +10,12 @@ void get_angle(int16_t * ac,float * angle_speed,float * angle,float *ac_angle){
     return ;
   }
   
-  R=sqrtf(((float)ac[0]*ac[0]+ac[1]*ac[1]+ac[2]*ac[2]));  //±í´ïÊ½ÖĞÓĞfloat£¬»á×Ô¶¯ÀàĞÍ×ª»¯Îªfloat
-  //Ô­À´µÄĞ´·¨
+  R=sqrtf(((float)ac[0]*ac[0]+ac[1]*ac[1]+ac[2]*ac[2]));  //è¡¨è¾¾å¼ä¸­æœ‰floatï¼Œä¼šè‡ªåŠ¨ç±»å‹è½¬åŒ–ä¸ºfloat
+  //åŸæ¥çš„å†™æ³•
   //R=sqrtf((float)(ac[0]*ac[0]+ac[1]*ac[1]+ac[2]*ac[2]));
-  //ÓĞÎÊÌâ£¬µ±Êı±È½Ï´óÊ±£¬Èç0x7FFF£¬Ïà³ËÖ®ºó»á³¬¹ıuint16_t·¶Î§£¬¶ø×ª»¯ÎªfloatÊÇÔÚÒç³ö·¢Éúºó£¬ËùÒÔÃ»ÓÃ
+  //æœ‰é—®é¢˜ï¼Œå½“æ•°æ¯”è¾ƒå¤§æ—¶ï¼Œå¦‚0x7FFFï¼Œç›¸ä¹˜ä¹‹åä¼šè¶…è¿‡uint16_tèŒƒå›´ï¼Œè€Œè½¬åŒ–ä¸ºfloatæ˜¯åœ¨æº¢å‡ºå‘ç”Ÿåï¼Œæ‰€ä»¥æ²¡ç”¨
   
-  if(fabs(R)<1e-6f){
+  if(fabsf(R)<1e-6f){
     return ;
   }
   for(int i=0;i<3;++i){
@@ -27,15 +27,11 @@ void get_angle(int16_t * ac,float * angle_speed,float * angle,float *ac_angle){
   }
 
   /*
-    ĞèÒª×¢Òâ£¬ÕâÀïangle[0]µ½µ×ÊÇ¼ÓÉÏangle_speed[1]»¹ÊÇangle_speed[2]»¹ÊÇangle_speed[0]Óë°å×Ó
-    µÄ°²×°Î»ÖÃÏ¢Ï¢Ïà¹Ø¡£
     
-    ÁíÍâ£¬»ı·ÖµÄ·ûºÅ£¬¼´angle[0]+=angle_speed£¬»¹ÊÇangle[0]-=angle_speed£¬Ò²Óë°²×°ÓĞ¹Ø
-    Èç¹ûangle_speedµÄ·½ÏòÓë½Ç¶È·½ÏòÏà·´£¬ÕâÀï¾ÍÒªÓÃ-µÄ¡£
   */
   angle[0]+=delta[0]*(1-gyro_k[0])+angle_speed[1]*gyro_k[0]*0.005;
   angle[1]+=delta[1]*(1-gyro_k[1])-angle_speed[0]*gyro_k[1]*0.005;
-  /* Æ«º½½Ç¼ÆËã
+  /* åèˆªè§’è®¡ç®—
   float temp1=sin((angle[0]-90)/180.0f*3.14);
   float temp2=sin((angle[1]-90)/180.0f*3.14);
   

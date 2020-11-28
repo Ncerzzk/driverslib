@@ -1,7 +1,7 @@
 #include "icm20600.h"
 //#include "usart.h"
-#include "i2c.h"
-
+//#include "i2c.h"
+#include "main.h"
 
 MPU_Dev MPU9250;
 MPU_Setting MPU9250_Setting;
@@ -9,7 +9,6 @@ MPU_Setting MPU9250_Setting;
 /*
 下面几个个函数需用户自己实现。
 */
-extern I2C_HandleTypeDef hi2c1;
 uint8_t I2C_Write_Buffer(uint8_t slaveAddr, uint8_t writeAddr, uint8_t *pBuffer,uint16_t len);
 uint8_t I2C_Read_Buffer(uint8_t slaveAddr,uint8_t readAddr,uint8_t *pBuffer,uint16_t len);
 void I2C_Reset(void);
@@ -72,7 +71,7 @@ void Gyroraw_to_Angle_Speed(MPU_Dev *dev,int16_t *gy,float *angle_speed ){
   }
 }
 
-
+  volatile uint8_t temp_read =0;
 
 void MPU9250_Init(MPU_Dev * dev){
   
@@ -97,12 +96,14 @@ void MPU9250_Init(MPU_Dev * dev){
 MPU_INIT:
   
   dev->delay_ms(50);
-  
+
 
   mpu_write_byte(dev,PWR_MGMT_1,0x01);
+
+   temp_read  = mpu_read_byte(dev,PWR_MGMT_1); 
   mpu_write_byte(dev,SMPLRT_DIV, 0x00);
   mpu_write_byte(dev,MPU_CONFIG, 0x02);  //之前延时为20ms(0x06，现在为3ms左右 0x02)
-  
+ temp_read  = mpu_read_byte(dev,MPU_CONFIG); 
   mpu_write_byte(dev,GYRO_CONFIG, dev->setting->gyro_range_setting);   //
   mpu_write_byte(dev,ACCEL_CONFIG, dev->setting->accel_range_setting); 
   mpu_write_byte(dev,ACCEL_CONFIG2, dev->setting->accel_lpf_setting); 

@@ -1,4 +1,5 @@
 #include "pid.h"
+#include "math.h"
 
 #define Limit(value,max)     if(value>max)value=max;else if(value<-max)value=-max
 float PID_Control(PID_S *PID,float target,float now){
@@ -12,12 +13,14 @@ float PID_Control(PID_S *PID,float target,float now){
   
   
   err_dt*=0.384f;
-  err_dt+=PID->last_d*0.615f;   //µÍÍ¨ÂË²¨
+  err_dt+=PID->last_d*0.615f;  //ä½Žé€šæ»¤æ³¢ 
   
   
   PID->last_err=err;
+  if(fabsf(err)<PID->I_ERR_LIMIT){
+    PID->i+=err*PID->I_TIME;
+  } 
   
-  PID->i+=err*PID->I_TIME;
   
   Limit(PID->i,PID->i_max);
   PID->last_d=err_dt;

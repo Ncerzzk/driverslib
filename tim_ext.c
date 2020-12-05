@@ -36,3 +36,27 @@ void Timer_1ms_IRQ_Handler(){
     Pass_Time_ms++;
 }
 
+static TIM_HandleTypeDef *Delay_Timer_Tim;
+void Delay_Timer_Init(TIM_HandleTypeDef *tim,uint32_t max_freq){
+    Delay_Timer_Tim = tim;
+    tim->Instance->PSC = max_freq/1000/1000;
+    tim->Instance->ARR = 0xFFFF;
+}
+
+// This implement is not thread safe, so I add the Delaying flag to prevent deadlock
+// there are some ways to solve this problem
+// but i'm lazy to use C program language to do so, I don't want to implement more datastructures by C
+// may be next time  when I'm using rust, the problem could be solved
+void Delay_Us(uint16_t n){
+    static uint8_t Delaying=0;
+    while(Delaying);
+    
+    Delay_Timer_Tim->Instance->CNT=0; 
+    HAL_TIM_Base_Start(Delay_Timer_Tim);
+    Delaying = 1;
+    while(Delay_Timer_Tim->Instance->CNT<n){
+        ;
+    }
+    HAL_TIM_Base_Stop(Delay_Timer_Tim);
+    Delaying = 0;
+}

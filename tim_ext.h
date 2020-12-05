@@ -11,8 +11,11 @@ typedef struct{
 
 
 void Timer_1ms_IRQ_Handler();
-void Timer_Init(TIM_HandleTypeDef *tim);
+void Timer_Init(TIM_HandleTypeDef *tim,uint32_t );
 void Time_Counter_Start(Time_Counter * time_counter);
 uint32_t Time_Counter_Stop(Time_Counter * time_counter);
 void Timer_1ms_IRQ_Handler();
+void Delay_Timer_Init(TIM_HandleTypeDef *tim,uint32_t max_freq);
+void Delay_Us(uint16_t n);
+
 #endif

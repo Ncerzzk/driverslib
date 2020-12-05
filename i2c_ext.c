@@ -43,7 +43,7 @@ uint8_t I2C_Write_Buffer(uint8_t slaveAddr, uint8_t writeAddr, uint8_t *pBuffer,
   return result;
 }
 
-void Delay_Us(uint32_t nus){
+static void Delay_Us_Coarse(uint32_t nus){
     // 主频按72M 计算，其他主频略有误差
     uint32_t cnt=nus*72;
 
@@ -68,9 +68,9 @@ void I2C_Reset(){
     for(int i=0;i<9;++i){
       if(HAL_GPIO_ReadPin(SDA_GPIO_PORT,SDA_GPIO_PIN)!=GPIO_PIN_SET){
         HAL_GPIO_WritePin(SCL_GPIO_PORT,SCL_GPIO_PIN,GPIO_PIN_SET);
-        Delay_Us(10);
+        Delay_Us_Coarse(10);
         HAL_GPIO_WritePin(SCL_GPIO_PORT,SCL_GPIO_PIN,GPIO_PIN_RESET);
-        Delay_Us(10);
+        Delay_Us_Coarse(10);
       }else{
         break;
       }

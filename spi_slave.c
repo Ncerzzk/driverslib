@@ -84,44 +84,50 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi){
 }
 
 
+
+
+
+/*
 static  SPI_HandleTypeDef *  Master_HSPI;
 static void (*Delay_Us_Func) (int);
 static GPIO_TypeDef* Master_CSN_Port;
 static uint16_t Master_CSN_Pin; 
 
 static uint8_t Master_Rx_Buffer[10];
+*/
 
-#define Master_Delay()  Delay_Us_Func(10)
+#define Master_Delay(master)  master->Delay_Us_Func(10)
  
-void SPI_COM_Master_Init(SPI_HandleTypeDef * master_hspi,GPIO_TypeDef* csn_port, uint16_t csn_pin,void (*delay_us_func) (int)){
-    Master_HSPI = master_hspi;
-    Delay_Us_Func = delay_us_func;
-    Master_CSN_Port = csn_port;
-    Master_CSN_Pin = csn_pin;
+void SPI_COM_Master_Init(SPI_Com_Master * master,SPI_HandleTypeDef * master_hspi,GPIO_TypeDef* csn_port, uint16_t csn_pin,void (*delay_us_func) (uint16_t)){
+    master->SPI_Use = master_hspi;
+    master->Delay_Us_Func = delay_us_func;
+    master->CSN_Port = csn_port;
+    master->CSN_Pin = csn_pin;
 }
 
-void SPI_COM_Master_Read_Reg(uint8_t reg_addr,uint8_t * reg_data,uint16_t size){
+void SPI_COM_Master_Read_Reg(SPI_Com_Master * master,uint8_t reg_addr,uint8_t * reg_data,uint16_t size){
     uint8_t temp=0;
     temp = reg_addr | 0x80;
-    HAL_GPIO_WritePin(Master_CSN_Port,Master_CSN_Pin,GPIO_PIN_RESET);
-    Master_Delay();
-    HAL_SPI_TransmitReceive(Master_HSPI,&temp,Master_Rx_Buffer,1,10); // 此时Master_Rx_Buffer里存的应该是List[0]里的寄存器的值，8位
-    Master_Delay();
-    HAL_SPI_TransmitReceive(Master_HSPI,Master_Rx_Buffer,Master_Rx_Buffer,size,10);
-    Master_Delay();
-    HAL_GPIO_WritePin(Master_CSN_Port,Master_CSN_Pin,GPIO_PIN_SET);
-    memcpy(reg_data,Master_Rx_Buffer,size);
+    HAL_GPIO_WritePin(master->CSN_Port,master->CSN_Pin,GPIO_PIN_RESET);
+    Master_Delay(master);
+    HAL_SPI_TransmitReceive(master->SPI_Use,&temp,master->Rx_Buffer,1,10); // 此时Master_Rx_Buffer里存的应该是List[0]里的寄存器的值，8位
+    Master_Delay(master);
+    HAL_SPI_TransmitReceive(master->SPI_Use,master->Rx_Buffer,master->Rx_Buffer,size,10);
+    Master_Delay(master);
+    HAL_GPIO_WritePin(master->CSN_Port,master->CSN_Pin,GPIO_PIN_SET);
+    memcpy(reg_data,master->Rx_Buffer,size);
 }
 
-void SPI_COM_Master_Write_Reg(uint8_t reg_addr,uint8_t * reg_data,uint16_t size){
+void SPI_COM_Master_Write_Reg(SPI_Com_Master * master,uint8_t reg_addr,uint8_t * reg_data,uint16_t size){
     uint8_t temp=0;
     temp = reg_addr;
-    HAL_GPIO_WritePin(Master_CSN_Port,Master_CSN_Pin,GPIO_PIN_RESET);
-    Master_Delay();
-    HAL_SPI_TransmitReceive(Master_HSPI,&temp,Master_Rx_Buffer,1,10); //此时Master_Rx_Buffer里存的应该是List[0]里的寄存器的值，8位
-    Master_Delay();
-    HAL_SPI_TransmitReceive(Master_HSPI,reg_data,Master_Rx_Buffer,size,10);
-    Master_Delay(); 
-    HAL_GPIO_WritePin(Master_CSN_Port,Master_CSN_Pin,GPIO_PIN_SET);
+    HAL_GPIO_WritePin(master->CSN_Port,master->CSN_Pin,GPIO_PIN_RESET);
+    Master_Delay(master);
+    HAL_SPI_TransmitReceive(master->SPI_Use,&temp,master->Rx_Buffer,1,10); //此时Master_Rx_Buffer里存的应该是List[0]里的寄存器的值，8位
+    Master_Delay(master);
+    HAL_SPI_TransmitReceive(master->SPI_Use,reg_data,master->Rx_Buffer,size,10);
+    Master_Delay(master); 
+    HAL_GPIO_WritePin(master->CSN_Port,master->CSN_Pin,GPIO_PIN_SET);
+
 }
 

@@ -26,7 +26,7 @@ void Timer_Init(TIM_HandleTypeDef *tim,uint32_t max_freq)
     Timer_Tim = tim;
     TIM_MAX_FREQ=max_freq;
 
-    tim->Instance->PSC=83;
+    tim->Instance->PSC=max_freq/1000/1000;
     tim->Instance->ARR=TIM_MAX_FREQ/(tim->Instance->PSC+1)/1000-1;
 
     HAL_TIM_Base_Start_IT(tim);

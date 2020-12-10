@@ -22,7 +22,7 @@ typedef enum{
 
 static SPI_Com_Slave_Status Status;
 static SPI_HandleTypeDef *SPI_Use;
-static uint8_t Rx_Buffer[10];
+static uint8_t Rx_Buffer[30];
 static SPI_Com_Slave_Mode Mode;
 static uint16_t Reg_List_Length;
 static uint8_t Now_Operate_Reg_Index;
@@ -39,6 +39,7 @@ void SPI_Slave_CSN_Handler(uint8_t flag){
         SPI_Slave_TransmitReceive((SPI_COM_VAL* )SPI_Com_Val_List);
         // 这一句发送完毕后，会进入发送接收完成中断
     }else{
+        HAL_SPI_Abort(SPI_Use);   // 正常流程下，该函数会很快结束。只有在SPI转串口模式下，会出现强制停止SPI_DMA的情况。
         Status = SPI_COM_IDLE;
     }
 }
@@ -84,16 +85,8 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi){
 }
 
 
-
-
-
 /*
-static  SPI_HandleTypeDef *  Master_HSPI;
-static void (*Delay_Us_Func) (int);
-static GPIO_TypeDef* Master_CSN_Port;
-static uint16_t Master_CSN_Pin; 
-
-static uint8_t Master_Rx_Buffer[10];
+-------------------    Master Interface     -------------------------
 */
 
 #define Master_Delay(master)  master->Delay_Us_Func(10)

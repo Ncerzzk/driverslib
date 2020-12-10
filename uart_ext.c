@@ -10,7 +10,7 @@ static UART_TXRX_Mode Tx_Mode=BLOCK;
 static UART_TXRX_Mode Rx_Mode=IT;
 static UART_HandleTypeDef * debug_uart=0;
 
-uint8_t uart_buffer[100+1];
+uint8_t uart_buffer[100+1];   // 发送用的
 
 uint8_t buffer_rx_temp;
 #ifdef SPECIAL_LARGE_RECEIVE
@@ -18,7 +18,7 @@ uint8_t buffer_rx_temp;
 #else
   #define BUFFER_RX_SIZE 30
 #endif 
-uint8_t buffer_rx[BUFFER_RX_SIZE];
+uint8_t buffer_rx[BUFFER_RX_SIZE];  // 接收用的
 int buffer_rx_count=0;
 uint8_t buffer_rx_OK;
 

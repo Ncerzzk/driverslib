@@ -22,7 +22,7 @@ typedef enum{
 
 static SPI_Com_Slave_Status Status;
 static SPI_HandleTypeDef *SPI_Use;
-static uint8_t Rx_Buffer[10];
+static uint8_t Rx_Buffer[30];
 static SPI_Com_Slave_Mode Mode;
 static uint16_t Reg_List_Length;
 static uint8_t Now_Operate_Reg_Index;

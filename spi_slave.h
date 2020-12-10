@@ -16,7 +16,7 @@ typedef struct{
    void (*Delay_Us_Func)(uint16_t);
    GPIO_TypeDef * CSN_Port;
    uint16_t CSN_Pin;
-   uint8_t Rx_Buffer[10]; 
+   uint8_t Rx_Buffer[30]; 
 }SPI_Com_Master;
 
 

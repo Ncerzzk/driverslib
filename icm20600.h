@@ -115,5 +115,5 @@ void MPU9250_Init(MPU_Dev * dev);
 extern MPU_Dev MPU9250;
 
 void MPU_Read6500(MPU_Dev *dev,int16_t *,int16_t *);
-void Gyroraw_to_Angle_Speed(MPU_Dev *dev,int16_t  gy[3],float angle_speed[3]);
+void Gyroraw_to_Angle_Speed(MPU_Dev *dev,int16_t *gy,float *angle_speed,uint8_t dps);
 #endif

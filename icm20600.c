@@ -65,9 +65,13 @@ void MPU_Read6500(MPU_Dev *dev,int16_t ac[],int16_t gy[]){
   gy[2]=(temp[4]<<8)|temp[5];	
 }
 
-void Gyroraw_to_Angle_Speed(MPU_Dev *dev,int16_t *gy,float *angle_speed ){
+void Gyroraw_to_Angle_Speed(MPU_Dev *dev,int16_t *gy,float *angle_speed,uint8_t dps){
   for(int i=0;i<3;++i){
-    angle_speed[i]=dev->setting->gyro_range*gy[i]/32768.0f;
+    if(dps){
+      angle_speed[i]=dev->setting->gyro_range*gy[i]/32768.0f;
+    }else{
+      angle_speed[i]=dev->setting->gyro_range*gy[i]/57.3f/32768.0f;
+    }
   }
 }
 

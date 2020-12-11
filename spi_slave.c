@@ -109,6 +109,8 @@ void SPI_COM_Master_Read_Reg(SPI_Com_Master * master,uint8_t reg_addr,uint8_t * 
     Master_Delay(master);
     HAL_GPIO_WritePin(master->CSN_Port,master->CSN_Pin,GPIO_PIN_SET);
     memcpy(reg_data,master->Rx_Buffer,size);
+
+    Master_Delay(master);
 }
 
 void SPI_COM_Master_Write_Reg(SPI_Com_Master * master,uint8_t reg_addr,uint8_t * reg_data,uint16_t size){
@@ -121,6 +123,6 @@ void SPI_COM_Master_Write_Reg(SPI_Com_Master * master,uint8_t reg_addr,uint8_t *
     HAL_SPI_TransmitReceive(master->SPI_Use,reg_data,master->Rx_Buffer,size,10);
     Master_Delay(master); 
     HAL_GPIO_WritePin(master->CSN_Port,master->CSN_Pin,GPIO_PIN_SET);
-
+    Master_Delay(master);
 }
 

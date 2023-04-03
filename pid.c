@@ -6,10 +6,12 @@ float PID_Control(PID_S *PID,float target,float now){
   float err;
   float err_dt;
   float result;
-  
+
+  float i_max=0;
+
   err=target-now;
   
-  err_dt=err-PID->last_err;
+  err_dt=(err-PID->last_err)/PID->I_TIME;
   
   
   err_dt*=0.384f;
@@ -17,12 +19,14 @@ float PID_Control(PID_S *PID,float target,float now){
   
   
   PID->last_err=err;
-  if(fabsf(err)<PID->I_ERR_LIMIT){
+
+  if(PID->KI>0.0001f){
+    i_max = PID->i_out_max/PID->KI;
     PID->i+=err*PID->I_TIME;
-  } 
-  
-  
-  Limit(PID->i,PID->i_max);
+
+    Limit(PID->i,i_max);
+  }
+
   PID->last_d=err_dt;
   
   result = err * PID->KP  +   err_dt * PID->KD   +   PID->i * PID->KI;

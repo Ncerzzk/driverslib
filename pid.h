@@ -7,7 +7,7 @@ typedef struct{
 	float KI;
 	float i;
 	float last_err;
-	float i_max;
+	float i_out_max;
 	float last_d;
     float I_TIME;    //2018��7��9�� �޸ģ����ӻ���ʱ�䣬
                     //��ǰ����Ϊ�궨�壬����ͬPID�Ļ���Ӧ���ǲ�һ����

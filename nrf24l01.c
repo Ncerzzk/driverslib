@@ -18,7 +18,7 @@ SPI_HandleTypeDef * SPI_USE;
 
 
 
-uint8_t  RX_ADDRESS[3][5]= {{0x20,0x30,0x40,0x40,0x40},
+uint8_t  RX_ADDRESS[3][5]= {{0x20,0x30,0x40,0x40,0x42},
                             {0x1,0x2,0x3,0x4,0x5},
                             }; 
 uint8_t  TX_ADDRESS[5]= {0x20,0x30,0x40,0x40,0x42}; 
@@ -284,14 +284,15 @@ void NRF_TX_IRQ_Handler(){
   NRF_Write_Reg(FLUSH_TX,0);    // 这一句似乎不需要
   NRF_Write_Reg(STATUS,0xFF);
 }
-
+#include "uart_ext.h"
 void NRF_RX_IRQ_Handler(){
   NRF_Read_Bytes(R_RX_PAYLOAD,NRF_RX_Data,RX_PLOAD_WIDTH);
-  NRF_Write_Reg(FLUSH_RX,0); 
+
+  NRF_Set_GPIO(CE,LOW);
+
   NRF_Write_Reg(STATUS,0xFF);  //清空STATUS
  
-  //NRF_Set_GPIO(CE,LOW);
-
   NRF_Receive_Callback(NRF_RX_Data,RX_PLOAD_WIDTH);  
+  NRF_Write_Reg(FLUSH_RX,0); 
 }
 

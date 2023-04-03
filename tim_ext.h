@@ -17,5 +17,6 @@ uint32_t Time_Counter_Stop(Time_Counter * time_counter);
 void Timer_1ms_IRQ_Handler();
 void Delay_Timer_Init(TIM_HandleTypeDef *tim,uint32_t max_freq);
 void Delay_Us(uint16_t n);
-
+void Delay_Us_NOP(uint16_t n);
+void Delay_Us_NOP_Init(uint32_t max_freq);
 #endif

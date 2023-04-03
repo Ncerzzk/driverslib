@@ -1,7 +1,7 @@
 #include "arm_math.h"
 #define Semig 1e-6f
-#define INTEGRAL_CONSTANT 0.002f		//积分时间 2ms
-#define HALF_T 0.001f
+#define INTEGRAL_CONSTANT 0.005f		//积分时间 2ms
+#define HALF_T 0.0025f
 
 
 float q0=1.0f;
@@ -11,8 +11,8 @@ float q3=0.0f;
 
 float exInt,eyInt,ezInt;
 
-float IMU_P=1.0f;				//2.0f   //20
-float IMU_I=0.005f;		//0.005          0.03
+float IMU_P=0.5;//1.0f;				//2.0f   //20
+float IMU_I=0.0025f;//0.005f;		//0.005          0.03
 
 void IMU_Update(float * ac,float * gy,float *attitude,float *ace){
 
